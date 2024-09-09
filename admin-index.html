@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .tab-content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: 0;
+        }
+        .dark-mode {
+            background-color: #001f3f;
+            color: #ffffff;
+        }
+        .dark-mode .form-control {
+            background-color: #003366;
+            color: #ffffff;
+            border-color: #0066cc;
+        }
+        .dark-mode .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #007bff;
+            transition: color 0.3s;
+        }
+        .dark-mode .theme-toggle {
+            color: #ffffff;
+        }
+        .input-group-prepend {
+            border-right: 0;
+        }
+        .input-group .form-control {
+            border-left: 0;
+        }
+        .input-group .input-group-text {
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4" style="position: relative;">
+        <button id="theme-toggle" class="theme-toggle">
+            <i id="theme-icon" class="fas fa-moon"></i>
+        </button>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="add-user-tab" data-toggle="tab" href="#add-user" role="tab" aria-controls="add-user" aria-selected="true">Add User Details</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="update-balance-tab" data-toggle="tab" href="#update-balance" role="tab" aria-controls="update-balance" aria-selected="false">Update Balance</a>
+            </li>
+        </ul>
+        <div class="tab-content mt-2" id="myTabContent">
+            <!-- Add User Form -->
+            <div class="tab-pane fade show active" id="add-user" role="tabpanel" aria-labelledby="add-user-tab">
+                <form id="add-user-form" action="admin_process.php" method="post">
+                    <div class="form-group">
+                        <label for="address">Unique Address</label>
+                        <input type="text" class="form-control" id="address" name="address" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">+91</span>
+                            </div>
+                            <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter your mobile number" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="deposited">Amount Deposited</label>
+                        <input type="number" class="form-control" id="deposited" name="deposited" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="balance">Amount Balance</label>
+                        <input type="number" class="form-control" id="balance" name="balance" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            </div>
+            <!-- Update Balance Form -->
+            <div class="tab-pane fade" id="update-balance" role="tabpanel" aria-labelledby="update-balance-tab">
+                <form id="update-balance-form" action="admin_process.php" method="post">
+                    <div class="form-group">
+                        <label for="update-mobile">Mobile Number</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">+91</span>
+                            </div>
+                            <input type="tel" class="form-control" id="update-mobile" name="update-mobile" placeholder="Enter your mobile number" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-balance-amount">New Amount Balance</label>
+                        <input type="number" class="form-control" id="update-balance-amount" name="update-balance-amount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Balance</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+        function generateUniqueAddress() {
+            return 'A' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        }
+
+        function setTheme(isDark) {
+            const themeIcon = document.getElementById('theme-icon');
+            if (!themeIcon) {
+                console.error('Theme icon not found.');
+                return;
+            }
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const address = generateUniqueAddress();
+            document.getElementById('address').value = address;
+
+            const themeToggle = document.getElementById('theme-toggle');
+            if (!themeToggle) {
+                console.error('Theme toggle button not found.');
+                return;
+            }
+            const savedTheme = localStorage.getItem('darkMode');
+
+            // Set initial theme
+            setTheme(savedTheme === 'true');
+
+            themeToggle.addEventListener('click', function() {
+                const isDarkMode = !document.body.classList.contains('dark-mode');
+                setTheme(isDarkMode);
+            });
+        });
+    </script>
+</body>
+</html>

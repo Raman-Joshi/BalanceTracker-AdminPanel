@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #74ebd5, #acb6e5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: scale(1.02);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .dashboard {
+            display: none;
+        }
+        .dashboard.active {
+            display: block;
+        }
+        .dashboard .card {
+            margin-top: 20px;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard .card-header {
+            background: #007bff;
+            color: #ffffff;
+            border-bottom: 1px solid #0069d9;
+            font-weight: bold;
+        }
+        .dashboard .card-body {
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .dashboard .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+        }
+        #user-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #007bff;
+        }
+        #logout {
+            margin-top: 20px;
+        }
+        #login-error {
+            font-size: 0.875rem;
+            transition: opacity 0.3s ease;
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Login Form -->
+    <div id="login-form">
+        <h2 class="text-center mb-4">Login</h2>
+        <form id="login">
+            <div class="form-group">
+                <label for="mobile">Mobile Number</label>
+                <input type="tel" class="form-control" id="mobile" placeholder="+91" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+        <div id="login-error" class="text-danger mt-2 fade-in" style="display: none;">Invalid mobile number.</div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <h2 class="text-center mb-4">Dashboard</h2>
+        <div id="user-details" class="text-center">
+            <p id="user-name" class="mb-4"></p>
+            <div class="card">
+                <div class="card-header">
+                    Account Details
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Account Summary</h5>
+                    <p class="card-text">Amount Deposited: ₹<span id="deposited-amount">0</span></p>
+                    <p class="card-text">Amount Balance: ₹<span id="balance-amount">0</span></p>
+                </div>
+            </div>
+        </div>
+        <button id="logout" class="btn btn-primary btn-block mt-4">Logout</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#login').on('submit', function(event) {
+            event.preventDefault();
+            const mobile = $('#mobile').val();
+
+            $.ajax({
+                type: 'POST',
+                url: 'fetch_user.php', // Ensure this URL is correct and points to your PHP script
+                data: { mobile: mobile },
+                success: function(response) {
+                    try {
+                        if (typeof response === 'string') {
+                            response = JSON.parse(response);
+                        }
+                        if (response.status === 'success') {
+                            $('#login-form').hide();
+                            $('#dashboard').addClass('active');
+                            $('#user-name').html('Welcome, <strong>' + response.name + '</strong>');
+                            $('#deposited-amount').text(response.deposited);
+                            $('#balance-amount').text(response.balance);
+                            $('#login-error').hide();
+                        } else {
+                            $('#login-error').text(response.message).show();
+                        }
+                    } catch (e) {
+                        $('#login-error').text('Error parsing response.').show();
+                    }
+                },
+                error: function() {
+                    $('#login-error').text('An error occurred. Please try again.').show();
+                }
+            });
+        });
+
+        $('#logout').on('click', function() {
+            $('#dashboard').removeClass('active');
+            $('#login-form').show();
+            $('#login-error').hide();
+            $('#mobile').val('');
+        });
+    });
+</script>
+
+</body>
+</html>
